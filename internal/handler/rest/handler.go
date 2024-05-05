@@ -29,6 +29,7 @@ func NewHandler(
 	trackAPI.GET("/search", trackHandler.Search)
 	trackAPI.GET("/:trackID", trackHandler.Fetch)
 	trackAPI.DELETE("/:trackID", trackHandler.Delete)
+	trackAPI.GET("/:trackID/download", trackHandler.FetchFile)
 	trackAPI.POST("", trackHandler.Create)
 
 	return &Handler{

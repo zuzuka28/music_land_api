@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"github.com/zuzuka28/music_land_api/internal/model"
+	"github.com/zuzuka28/music_land_api/pkg/fs"
 )
 
 type (
 	FileStorage interface {
+		FetchFile(ctx context.Context, name string) (*fs.File, error)
 		SaveFile(ctx context.Context, name string, data []byte) error
 		DeleteFile(ctx context.Context, name string) error
 	}

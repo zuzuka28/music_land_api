@@ -6,6 +6,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/zuzuka28/music_land_api/pkg/fs"
 )
 
 type Credentials struct {
@@ -22,6 +23,7 @@ type Config struct {
 type Client struct {
 	*deleteClient
 	*saveClient
+	*fetchClient
 }
 
 func NewClient(cfg *Config) (*Client, error) {
@@ -39,11 +41,16 @@ func NewClient(cfg *Config) (*Client, error) {
 	return &Client{
 		deleteClient: newDeleteClient(s3, cfg.Bucket),
 		saveClient:   newSaveClient(s3, cfg.Bucket),
+		fetchClient:  newFetchClient(s3, cfg.Bucket),
 	}, nil
 }
 
 func (c *Client) DeleteFile(ctx context.Context, name string) error {
 	return c.deleteClient.DeleteFile(ctx, name)
+}
+
+func (c *Client) FetchFile(ctx context.Context, name string) (*fs.File, error) {
+	return c.fetchClient.FetchFile(ctx, name)
 }
 
 func (c *Client) SaveFile(ctx context.Context, name string, data []byte) error {

@@ -8,6 +8,7 @@ type (
 		Fetch(gctx *gin.Context)
 		Create(gctx *gin.Context)
 		Search(gctx *gin.Context)
+		FetchFile(gctx *gin.Context)
 	}
 
 	UserHandler interface {
