@@ -1,0 +1,16 @@
+service:
+  host: 0.0.0.0
+  port: 8010
+file_storage:
+  endpoint:
+  bucket:
+  credentials:
+    access_key:
+    secret_key:
+storage:
+  host:
+  port:
+  user:
+  password:
+  name:
+log_level: info
