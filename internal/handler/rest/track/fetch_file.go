@@ -18,13 +18,13 @@ func makeFetchFileHandler(s fileFetcher) gin.HandlerFunc {
 	return func(gctx *gin.Context) {
 		req, err := parseTrackFetchQuery(gctx)
 		if err != nil {
-			gctx.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+			gctx.JSON(response.NewError(err))
 			return
 		}
 
 		res, err := s.FetchFile(gctx.Request.Context(), req)
 		if err != nil {
-			gctx.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+			gctx.JSON(response.NewError(err))
 			return
 		}
 

@@ -17,13 +17,13 @@ func makeFetchHandler(s fetcher) gin.HandlerFunc {
 	return func(gctx *gin.Context) {
 		req, err := parseTrackFetchQuery(gctx)
 		if err != nil {
-			gctx.JSON(http.StatusBadRequest, response.Error{Message: err.Error()})
+			gctx.JSON(response.NewError(err))
 			return
 		}
 
 		res, err := s.Fetch(gctx.Request.Context(), req)
 		if err != nil {
-			gctx.JSON(http.StatusInternalServerError, response.Error{Message: err.Error()})
+			gctx.JSON(response.NewError(err))
 			return
 		}
 
