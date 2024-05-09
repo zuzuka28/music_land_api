@@ -5,6 +5,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/zuzuka28/music_land_api/pkg/minio"
+	"github.com/zuzuka28/music_land_api/pkg/tracing"
 )
 
 type Service struct {
@@ -21,10 +22,11 @@ type Storage struct {
 }
 
 type API struct {
-	Service     *Service      `yaml:"service"`
-	FileStorage *minio.Config `yaml:"file_storage"`
-	Storage     *Storage      `yaml:"storage"`
-	LogLevel    string        `yaml:"log_level"`
+	Service     *Service        `yaml:"service"`
+	FileStorage *minio.Config   `yaml:"file_storage"`
+	Storage     *Storage        `yaml:"storage"`
+	Tracing     *tracing.Config `yaml:"tracing"`
+	LogLevel    string          `yaml:"log_level"`
 }
 
 func NewAPI(configPath string) (*API, error) {

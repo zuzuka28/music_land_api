@@ -21,12 +21,14 @@ type Config struct {
 }
 
 type Client struct {
-	*deleteClient
-	*saveClient
-	*fetchClient
+	tr Tracer
+
+	dc *deleteClient
+	sc *saveClient
+	fc *fetchClient
 }
 
-func NewClient(cfg *Config) (*Client, error) {
+func NewClient(cfg *Config, tr Tracer) (*Client, error) {
 	s3, err := minio.New(cfg.Endpoint, &minio.Options{ //nolint:exhaustruct
 		Creds: credentials.NewStaticV4(
 			cfg.Credentials.AccessKey,
@@ -39,20 +41,30 @@ func NewClient(cfg *Config) (*Client, error) {
 	}
 
 	return &Client{
-		deleteClient: newDeleteClient(s3, cfg.Bucket),
-		saveClient:   newSaveClient(s3, cfg.Bucket),
-		fetchClient:  newFetchClient(s3, cfg.Bucket),
+		tr: tr,
+		dc: newDeleteClient(s3, cfg.Bucket),
+		sc: newSaveClient(s3, cfg.Bucket),
+		fc: newFetchClient(s3, cfg.Bucket),
 	}, nil
 }
 
 func (c *Client) DeleteFile(ctx context.Context, name string) error {
-	return c.deleteClient.DeleteFile(ctx, name)
+	ctx, span := c.tr.Start(ctx, "DeleteFile")
+	defer span.End()
+
+	return c.dc.DeleteFile(ctx, name)
 }
 
 func (c *Client) FetchFile(ctx context.Context, name string) (*fs.File, error) {
-	return c.fetchClient.FetchFile(ctx, name)
+	ctx, span := c.tr.Start(ctx, "FetchFile")
+	defer span.End()
+
+	return c.fc.FetchFile(ctx, name)
 }
 
 func (c *Client) SaveFile(ctx context.Context, name string, data []byte) error {
-	return c.saveClient.SaveFile(ctx, name, data)
+	ctx, span := c.tr.Start(ctx, "SaveFile")
+	defer span.End()
+
+	return c.sc.SaveFile(ctx, name, data)
 }

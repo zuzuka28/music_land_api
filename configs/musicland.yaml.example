@@ -13,4 +13,9 @@ storage:
   user:
   password:
   name:
+# tracing:
+#   exporter:
+#     url: localhost:4317
+#   resource:
+#     name: musicland-service
 log_level: info

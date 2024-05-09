@@ -21,6 +21,7 @@ import (
 	usersrv "github.com/zuzuka28/music_land_api/internal/service/user"
 	"github.com/zuzuka28/music_land_api/pkg/logging"
 	"github.com/zuzuka28/music_land_api/pkg/minio"
+	"github.com/zuzuka28/music_land_api/pkg/tracing"
 	"xorm.io/xorm"
 )
 
@@ -31,7 +32,23 @@ func runServer(c *cli.Context) error {
 		return fmt.Errorf("new config: %w", err)
 	}
 
-	lg := logging.NewLogger(logging.LogLevel(cfg.LogLevel))
+	l := logging.NewLogger(logging.LogLevel(cfg.LogLevel))
+
+	t := tracing.NewNoop()
+
+	if cfg.Tracing != nil {
+		exp, er := tracing.NewOTLPExporter(c.Context, cfg.Tracing.Exporter)
+		if er != nil {
+			return fmt.Errorf("new otlp exporter: %w", er)
+		}
+
+		t = tracing.New(exp, tracing.NewResource(cfg.Tracing.Resource))
+	}
+
+	handlerT := t.Child("handler")
+	serviceT := t.Child("service")
+	repoT := t.Child("repository")
+	fsT := t.Child("filestorage")
 
 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Storage.Host, cfg.Storage.Port, cfg.Storage.User, cfg.Storage.Password, cfg.Storage.Name)
@@ -41,27 +58,27 @@ func runServer(c *cli.Context) error {
 		return fmt.Errorf("create xorm engine: %w", err)
 	}
 
-	fscli, err := minio.NewClient(cfg.FileStorage)
+	fscli, err := minio.NewClient(cfg.FileStorage, fsT.Child("minio"))
 	if err != nil {
 		return fmt.Errorf("create file storage client: %w", err)
 	}
 
-	trepo, err := trackrepo.NewRepository(eng)
+	trepo, err := trackrepo.NewRepository(eng, repoT.Child("track"))
 	if err != nil {
 		return fmt.Errorf("create track repository: %w", err)
 	}
 
-	urepo, err := userrepo.NewRepository(eng)
+	urepo, err := userrepo.NewRepository(eng, repoT.Child("user"))
 	if err != nil {
 		return fmt.Errorf("create user repository: %w", err)
 	}
 
-	usrv := usersrv.NewService(urepo)
-	tsrv := tracksrv.NewService(trepo, fscli)
-	asrv := authsrv.NewService(usrv)
+	usrv := usersrv.NewService(urepo, serviceT.Child("user"))
+	tsrv := tracksrv.NewService(trepo, fscli, serviceT.Child("track"))
+	asrv := authsrv.NewService(usrv, serviceT.Child("auth"))
 
-	uhandler := userhandler.NewHandler(usrv)
-	thandler := trackhandler.NewHandler(tsrv)
+	uhandler := userhandler.NewHandler(usrv, handlerT.Child("user"))
+	thandler := trackhandler.NewHandler(tsrv, handlerT.Child("track"))
 	amw := auth.BasicMiddleware(asrv)
 
 	api := rest.NewHandler(
@@ -88,7 +105,7 @@ func runServer(c *cli.Context) error {
 		return err
 
 	case sig := <-osSignals:
-		lg.Info("graceful shutdown initiated", sig)
+		l.Info("graceful shutdown initiated", sig)
 
 		// TODO: Add graceful shutdown logic here
 

@@ -5,9 +5,14 @@ import (
 
 	"github.com/zuzuka28/music_land_api/internal/model"
 	"github.com/zuzuka28/music_land_api/pkg/fs"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type (
+	Tracer interface {
+		Start(ctx context.Context, spanName string) (context.Context, trace.Span)
+	}
+
 	FileStorage interface {
 		FetchFile(ctx context.Context, name string) (*fs.File, error)
 		SaveFile(ctx context.Context, name string, data []byte) error

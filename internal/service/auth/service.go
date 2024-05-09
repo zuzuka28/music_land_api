@@ -7,15 +7,21 @@ import (
 )
 
 type Service struct {
-	*authenticateService
+	tr Tracer
+
+	as *authenticateService
 }
 
-func NewService(us UserService) *Service {
+func NewService(us UserService, tr Tracer) *Service {
 	return &Service{
-		authenticateService: newAuthenticateService(us),
+		tr: tr,
+		as: newAuthenticateService(us),
 	}
 }
 
 func (s *Service) Authenticate(ctx context.Context, cmd *model.AuthCommand) (*model.Identity, error) {
-	return s.authenticateService.Authenticate(ctx, cmd)
+	ctx, span := s.tr.Start(ctx, "Authenticate")
+	defer span.End()
+
+	return s.as.Authenticate(ctx, cmd)
 }

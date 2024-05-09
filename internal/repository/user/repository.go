@@ -9,25 +9,34 @@ import (
 )
 
 type Repository struct {
-	*createRepo
-	*fetchRepo
+	tr Tracer
+
+	cr *createRepo
+	fr *fetchRepo
 }
 
-func NewRepository(db *xorm.Engine) (*Repository, error) {
+func NewRepository(db *xorm.Engine, tr Tracer) (*Repository, error) {
 	if err := db.Sync(new(user)); err != nil {
 		return nil, fmt.Errorf("sync user: %w", err)
 	}
 
 	return &Repository{
-		createRepo: newCreateRepository(db),
-		fetchRepo:  newFetchRepository(db),
+		tr: tr,
+		cr: newCreateRepository(db),
+		fr: newFetchRepository(db),
 	}, nil
 }
 
 func (r *Repository) Create(ctx context.Context, item *model.User) error {
-	return r.createRepo.Create(ctx, item)
+	ctx, span := r.tr.Start(ctx, "Create")
+	defer span.End()
+
+	return r.cr.Create(ctx, item)
 }
 
 func (r *Repository) Fetch(ctx context.Context, id string) (*model.User, error) {
-	return r.fetchRepo.Fetch(ctx, id)
+	ctx, span := r.tr.Start(ctx, "Fetch")
+	defer span.End()
+
+	return r.fr.Fetch(ctx, id)
 }

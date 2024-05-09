@@ -7,21 +7,30 @@ import (
 )
 
 type Service struct {
-	*createService
-	*fetchService
+	tr Tracer
+
+	cs *createService
+	fs *fetchService
 }
 
-func NewService(r Repository) *Service {
+func NewService(r Repository, tr Tracer) *Service {
 	return &Service{
-		createService: newCreateService(r),
-		fetchService:  newFetchService(r),
+		tr: tr,
+		cs: newCreateService(r),
+		fs: newFetchService(r),
 	}
 }
 
 func (s *Service) Create(ctx context.Context, cmd *model.UserCreateCommand) error {
-	return s.createService.Create(ctx, cmd)
+	ctx, span := s.tr.Start(ctx, "Create")
+	defer span.End()
+
+	return s.cs.Create(ctx, cmd)
 }
 
 func (s *Service) Fetch(ctx context.Context, query *model.UserFetchQuery) (*model.User, error) {
-	return s.fetchService.Fetch(ctx, query)
+	ctx, span := s.tr.Start(ctx, "Fetch")
+	defer span.End()
+
+	return s.fs.Fetch(ctx, query)
 }
