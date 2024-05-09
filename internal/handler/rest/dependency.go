@@ -3,6 +3,12 @@ package rest
 import "github.com/gin-gonic/gin"
 
 type (
+	Logger interface {
+		Info(msg string, args ...any)
+		Warn(msg string, args ...any)
+		Error(msg string, args ...any)
+	}
+
 	TrackHandler interface {
 		Delete(gctx *gin.Context)
 		Fetch(gctx *gin.Context)

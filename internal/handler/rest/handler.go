@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/zuzuka28/music_land_api/internal/handler/rest/middleware/logging"
 )
 
 type Handler struct {
@@ -15,11 +16,16 @@ func NewHandler(
 	userHandler UserHandler,
 	trackHandler TrackHandler,
 	authMiddleware gin.HandlerFunc,
+	l Logger,
 ) *Handler {
 	eng := gin.New()
 
 	api := eng.Group("/api")
-	api.Use(cors.Default())
+	api.Use(
+		logging.InjectRequestID(),
+		logging.Middleware(l),
+		cors.Default(),
+	)
 
 	userAPI := api.Group("/user")
 	userAPI.POST("", userHandler.Create)

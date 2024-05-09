@@ -85,6 +85,7 @@ func runServer(c *cli.Context) error {
 		uhandler,
 		thandler,
 		amw,
+		l,
 	)
 
 	addr := cfg.Service.Host + ":" + strconv.Itoa(cfg.Service.Port)
