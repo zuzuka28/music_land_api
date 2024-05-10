@@ -1,9 +1,9 @@
 package track
 
 import (
-	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/zuzuka28/music_land_api/internal/model"
 )
 
@@ -13,7 +13,7 @@ func mapTrackToModel(in *track) *model.Track {
 	}
 
 	return &model.Track{
-		ID:     strconv.Itoa(int(in.ID)),
+		ID:     in.UID,
 		Name:   in.Name,
 		Author: in.Author,
 		FileID: in.FileID,
@@ -25,8 +25,10 @@ func mapTrackToInternal(in *model.Track) *track {
 		return nil
 	}
 
+	id := uuid.New().String()
+
 	return &track{
-		ID:      0,
+		UID:     id,
 		Name:    in.Name,
 		Author:  in.Author,
 		FileID:  in.FileID,

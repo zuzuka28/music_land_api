@@ -38,11 +38,6 @@ linters-settings:
   gomoddirectives:
     replace-local: true
 
-  gomnd:
-    settings:
-      mnd:
-        ignored-functions: os\.(OpenFile|WriteFile|Chmod),p?flag\..*,strconv\.(Format|Parse|Append).*
-
   gosec:
     config:
       G306: "0666" # enable to create files with permissions 0666 (before umask) or lesser

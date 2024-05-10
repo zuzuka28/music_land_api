@@ -3,7 +3,7 @@ package track
 import "time"
 
 type track struct {
-	ID      int64 `xorm:"autoincr"`
+	UID     string
 	Name    string
 	Author  string
 	FileID  string

@@ -11,11 +11,14 @@ import (
 	"github.com/urfave/cli/v2"
 	"github.com/zuzuka28/music_land_api/internal/config"
 	"github.com/zuzuka28/music_land_api/internal/handler/rest"
+	albumhandler "github.com/zuzuka28/music_land_api/internal/handler/rest/album"
 	"github.com/zuzuka28/music_land_api/internal/handler/rest/middleware/auth"
 	trackhandler "github.com/zuzuka28/music_land_api/internal/handler/rest/track"
 	userhandler "github.com/zuzuka28/music_land_api/internal/handler/rest/user"
+	albumrepo "github.com/zuzuka28/music_land_api/internal/repository/album"
 	trackrepo "github.com/zuzuka28/music_land_api/internal/repository/track"
 	userrepo "github.com/zuzuka28/music_land_api/internal/repository/user"
+	albumsrv "github.com/zuzuka28/music_land_api/internal/service/album"
 	authsrv "github.com/zuzuka28/music_land_api/internal/service/auth"
 	tracksrv "github.com/zuzuka28/music_land_api/internal/service/track"
 	usersrv "github.com/zuzuka28/music_land_api/internal/service/user"
@@ -73,17 +76,25 @@ func runServer(c *cli.Context) error {
 		return fmt.Errorf("create user repository: %w", err)
 	}
 
+	arepo, err := albumrepo.NewRepository(eng, repoT.Child("album"))
+	if err != nil {
+		return fmt.Errorf("create album repository: %w", err)
+	}
+
 	usrv := usersrv.NewService(urepo, serviceT.Child("user"))
 	tsrv := tracksrv.NewService(trepo, fscli, serviceT.Child("track"))
+	albsrv := albumsrv.NewService(arepo, serviceT.Child("album"))
 	asrv := authsrv.NewService(usrv, serviceT.Child("auth"))
 
 	uhandler := userhandler.NewHandler(usrv, handlerT.Child("user"))
 	thandler := trackhandler.NewHandler(tsrv, handlerT.Child("track"))
+	ahandler := albumhandler.NewHandler(albsrv, handlerT.Child("album"))
 	amw := auth.BasicMiddleware(asrv)
 
 	api := rest.NewHandler(
 		uhandler,
 		thandler,
+		ahandler,
 		amw,
 		l,
 	)

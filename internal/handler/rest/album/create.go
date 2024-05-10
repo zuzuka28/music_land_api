@@ -1,4 +1,4 @@
-package track
+package album
 
 import (
 	"context"
@@ -9,24 +9,25 @@ import (
 	"github.com/zuzuka28/music_land_api/internal/model"
 )
 
-type searcher interface {
-	Search(ctx context.Context, query *model.TrackSearchQuery) ([]*model.Track, error)
+type creator interface {
+	Create(ctx context.Context, cmd *model.AlbumCreateCommand) error
 }
 
-func makeSearchHandler(s searcher) gin.HandlerFunc {
+func makeCreateHandler(s creator) gin.HandlerFunc {
 	return func(gctx *gin.Context) {
-		req, err := parseTrackSearchQuery(gctx)
+		req, err := parseAlbumCreateCommand(gctx)
 		if err != nil {
 			gctx.JSON(response.NewError(err))
 			return
 		}
 
-		res, err := s.Search(gctx.Request.Context(), req)
-		if err != nil {
+		if err := s.Create(gctx.Request.Context(), req); err != nil {
 			gctx.JSON(response.NewError(err))
 			return
 		}
 
-		gctx.JSON(http.StatusOK, mapSearchResponse(res))
+		gctx.JSON(http.StatusOK, createResponse{
+			Status: "OK",
+		})
 	}
 }

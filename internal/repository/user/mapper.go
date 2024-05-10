@@ -12,7 +12,6 @@ func mapUserToModel(in *user) *model.User {
 	}
 
 	return &model.User{
-		ID:       in.ID,
 		Username: in.Username,
 		Password: in.Password,
 		Salt:     in.Salt,
@@ -25,7 +24,6 @@ func mapUserToInternal(in *model.User) *user {
 	}
 
 	return &user{
-		ID:       "",
 		Username: in.Username,
 		Password: in.Password,
 		Salt:     in.Salt,

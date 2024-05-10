@@ -15,6 +15,7 @@ type Handler struct {
 func NewHandler(
 	userHandler UserHandler,
 	trackHandler TrackHandler,
+	albumHandler AlbumHandler,
 	authMiddleware gin.HandlerFunc,
 	l Logger,
 ) *Handler {
@@ -37,6 +38,12 @@ func NewHandler(
 	trackAPI.DELETE("/:trackID", trackHandler.Delete)
 	trackAPI.GET("/:trackID/download", trackHandler.FetchFile)
 	trackAPI.POST("", trackHandler.Create)
+
+	albumAPI := api.Group("/album")
+	albumAPI.GET("/:albumID", albumHandler.Fetch)
+	albumAPI.DELETE("/:albumID", albumHandler.Delete)
+	albumAPI.POST("", albumHandler.Create)
+	albumAPI.PUT("/:albumID", albumHandler.Update)
 
 	return &Handler{
 		eng: eng,

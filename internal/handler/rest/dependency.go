@@ -20,4 +20,11 @@ type (
 	UserHandler interface {
 		Create(gctx *gin.Context)
 	}
+
+	AlbumHandler interface {
+		Delete(gctx *gin.Context)
+		Fetch(gctx *gin.Context)
+		Create(gctx *gin.Context)
+		Update(gctx *gin.Context)
+	}
 )

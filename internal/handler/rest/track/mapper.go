@@ -62,7 +62,7 @@ func mapFetchResponse(in *model.Track) *fetchResponse {
 	}
 }
 
-func parseTrachSearchQuery(gctx *gin.Context) (*model.TrackSearchQuery, error) {
+func parseTrackSearchQuery(gctx *gin.Context) (*model.TrackSearchQuery, error) {
 	req := new(searchRequest)
 	if err := gctx.ShouldBind(req); err != nil {
 		return nil, fmt.Errorf("bind search request: %w", err)
