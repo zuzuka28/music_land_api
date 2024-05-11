@@ -15,7 +15,7 @@ type deleteService struct {
 	r deleter
 }
 
-func newDeleteService(r Repository) *deleteService {
+func newDeleteService(r deleter) *deleteService {
 	return &deleteService{
 		r: r,
 	}

@@ -15,7 +15,7 @@ type searchService struct {
 	r searcher
 }
 
-func newSearchService(r Repository) *searchService {
+func newSearchService(r searcher) *searchService {
 	return &searchService{
 		r: r,
 	}

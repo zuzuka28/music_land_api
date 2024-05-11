@@ -15,7 +15,7 @@ type fetchService struct {
 	r fetcher
 }
 
-func newFetchService(r Repository) *fetchService {
+func newFetchService(r fetcher) *fetchService {
 	return &fetchService{
 		r: r,
 	}
