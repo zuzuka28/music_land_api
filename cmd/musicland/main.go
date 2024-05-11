@@ -13,13 +13,16 @@ import (
 	"github.com/zuzuka28/music_land_api/internal/handler/rest"
 	albumhandler "github.com/zuzuka28/music_land_api/internal/handler/rest/album"
 	"github.com/zuzuka28/music_land_api/internal/handler/rest/middleware/auth"
+	reactionhandler "github.com/zuzuka28/music_land_api/internal/handler/rest/reaction"
 	trackhandler "github.com/zuzuka28/music_land_api/internal/handler/rest/track"
 	userhandler "github.com/zuzuka28/music_land_api/internal/handler/rest/user"
 	albumrepo "github.com/zuzuka28/music_land_api/internal/repository/album"
+	reactionrepo "github.com/zuzuka28/music_land_api/internal/repository/reaction"
 	trackrepo "github.com/zuzuka28/music_land_api/internal/repository/track"
 	userrepo "github.com/zuzuka28/music_land_api/internal/repository/user"
 	albumsrv "github.com/zuzuka28/music_land_api/internal/service/album"
 	authsrv "github.com/zuzuka28/music_land_api/internal/service/auth"
+	reactionsrv "github.com/zuzuka28/music_land_api/internal/service/reaction"
 	tracksrv "github.com/zuzuka28/music_land_api/internal/service/track"
 	usersrv "github.com/zuzuka28/music_land_api/internal/service/user"
 	"github.com/zuzuka28/music_land_api/pkg/logging"
@@ -81,20 +84,28 @@ func runServer(c *cli.Context) error {
 		return fmt.Errorf("create album repository: %w", err)
 	}
 
+	rrepo, err := reactionrepo.NewRepository(eng, repoT.Child("reaction"))
+	if err != nil {
+		return fmt.Errorf("create reaction repository: %w", err)
+	}
+
 	usrv := usersrv.NewService(urepo, serviceT.Child("user"))
 	tsrv := tracksrv.NewService(trepo, fscli, serviceT.Child("track"))
 	albsrv := albumsrv.NewService(arepo, serviceT.Child("album"))
+	rsrv := reactionsrv.NewService(rrepo, serviceT.Child("reaction"))
 	asrv := authsrv.NewService(usrv, serviceT.Child("auth"))
 
 	uhandler := userhandler.NewHandler(usrv, handlerT.Child("user"))
 	thandler := trackhandler.NewHandler(tsrv, handlerT.Child("track"))
 	ahandler := albumhandler.NewHandler(albsrv, handlerT.Child("album"))
+	rhandler := reactionhandler.NewHandler(rsrv, handlerT.Child("reaction"))
 	amw := auth.BasicMiddleware(asrv)
 
 	api := rest.NewHandler(
 		uhandler,
 		thandler,
 		ahandler,
+		rhandler,
 		amw,
 		l,
 	)

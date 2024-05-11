@@ -27,4 +27,10 @@ type (
 		Create(gctx *gin.Context)
 		Update(gctx *gin.Context)
 	}
+
+	ReactionHandler interface {
+		Delete(gctx *gin.Context)
+		Create(gctx *gin.Context)
+		Search(gctx *gin.Context)
+	}
 )

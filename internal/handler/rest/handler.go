@@ -16,6 +16,7 @@ func NewHandler(
 	userHandler UserHandler,
 	trackHandler TrackHandler,
 	albumHandler AlbumHandler,
+	reactionHandler ReactionHandler,
 	authMiddleware gin.HandlerFunc,
 	l Logger,
 ) *Handler {
@@ -44,6 +45,11 @@ func NewHandler(
 	albumAPI.DELETE("/:albumID", albumHandler.Delete)
 	albumAPI.POST("", albumHandler.Create)
 	albumAPI.PUT("/:albumID", albumHandler.Update)
+
+	reactionAPI := api.Group("/reaction")
+	reactionAPI.DELETE("", reactionHandler.Delete)
+	reactionAPI.POST("", reactionHandler.Create)
+	reactionAPI.GET("/search", reactionHandler.Search)
 
 	return &Handler{
 		eng: eng,
