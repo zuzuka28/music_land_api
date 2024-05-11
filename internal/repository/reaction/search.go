@@ -22,9 +22,9 @@ func (r *searchRepo) Search(
 	ctx context.Context,
 	query *model.ReactionSearchQuery,
 ) ([]*model.Reaction, error) {
-	var tr []*reaction
+	var react []*reaction
 
-	if err := r.db.Context(ctx).Find(&tr, &reaction{ //nolint:exhaustruct
+	if err := r.db.Context(ctx).Find(&react, &reaction{ //nolint:exhaustruct
 		UserID:             query.UserID,
 		ReactionType:       string(query.ReactionType),
 		ReactionTargetID:   query.ReactionTargetID,
@@ -33,10 +33,5 @@ func (r *searchRepo) Search(
 		return nil, fmt.Errorf("get reaction from db: %w", err)
 	}
 
-	res := make([]*model.Reaction, 0, len(tr))
-	for i := range tr {
-		res = append(res, mapReactionToModel(tr[i]))
-	}
-
-	return res, nil
+	return mapReactionsToModel(react), nil
 }

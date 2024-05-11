@@ -27,7 +27,7 @@ func (r *createRepo) Create(ctx context.Context, item *model.Album) error {
 	alb := mapAlbumToInternal(item)
 	items := mapAlbumItems(item)
 
-	_, err := r.db.Transaction(func(sess *xorm.Session) (interface{}, error) {
+	_, err := r.db.Transaction(func(sess *xorm.Session) (any, error) {
 		sess = sess.Context(ctx)
 
 		if _, err := sess.Insert(alb); err != nil {
@@ -38,7 +38,7 @@ func (r *createRepo) Create(ctx context.Context, item *model.Album) error {
 			return nil, fmt.Errorf("insert album items in db: %w", err)
 		}
 
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	})
 	if err != nil {
 		return fmt.Errorf("create album: %w", err)

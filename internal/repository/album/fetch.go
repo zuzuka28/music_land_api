@@ -20,13 +20,13 @@ func newFetchRepository(db *xorm.Engine) *fetchRepo {
 
 func (r *fetchRepo) Fetch(ctx context.Context, id string) (*model.Album, error) {
 	var (
-		alb *album = &album{
+		alb = &album{ //nolint:exhaustruct
 			UID: id,
 		}
 		tracks []*albumItem
 	)
 
-	_, err := r.db.Transaction(func(sess *xorm.Session) (interface{}, error) {
+	_, err := r.db.Transaction(func(sess *xorm.Session) (any, error) {
 		sess = sess.Context(ctx)
 
 		has, err := sess.Get(alb)
@@ -38,11 +38,11 @@ func (r *fetchRepo) Fetch(ctx context.Context, id string) (*model.Album, error) 
 			return nil, fmt.Errorf("%w: get album %s in db", model.ErrNotFound, id)
 		}
 
-		if err := sess.Find(tracks, &albumItem{AlbumID: id}); err != nil {
+		if err := sess.Find(tracks, &albumItem{AlbumID: id}); err != nil { //nolint:exhaustruct
 			return nil, fmt.Errorf("find album items in db: %w", err)
 		}
 
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("fetch album: %w", err)

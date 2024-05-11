@@ -33,3 +33,12 @@ func mapReactionToModel(in *reaction) *model.Reaction {
 		ReactionTargetType: model.ReactionTargetType(in.ReactionTargetType),
 	}
 }
+
+func mapReactionsToModel(in []*reaction) []*model.Reaction {
+	items := make([]*model.Reaction, 0, len(in))
+	for i := range in {
+		items = append(items, mapReactionToModel(in[i]))
+	}
+
+	return items
+}

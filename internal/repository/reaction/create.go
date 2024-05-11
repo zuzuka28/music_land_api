@@ -21,15 +21,7 @@ func newCreateRepository(db *xorm.Engine) *createRepo {
 func (r *createRepo) Create(ctx context.Context, item *model.Reaction) error {
 	react := mapReactionToInternal(item)
 
-	_, err := r.db.Transaction(func(sess *xorm.Session) (interface{}, error) {
-		sess = sess.Context(ctx)
-
-		if _, err := sess.Insert(react); err != nil {
-			return nil, fmt.Errorf("insert reaction in db: %w", err)
-		}
-
-		return nil, nil
-	})
+	_, err := r.db.Context(ctx).Insert(react)
 	if err != nil {
 		return fmt.Errorf("create reaction: %w", err)
 	}
